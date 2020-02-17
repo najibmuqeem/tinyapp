@@ -13,6 +13,7 @@
       integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
       crossorigin="anonymous"
     />
+    <%-include("./partials/_header.ejs")%>
     <title>TinyApp</title>
   </head>
   <body>
@@ -28,7 +29,7 @@
         <tbody>
           <% for(let url in urls) { %>
           <tr>
-            <td><a href="#"><%= url %></a></td>
+            <td><%= url %></td>
             <td><%= urls[url] %></td>
           </tr>
           <% } %>
