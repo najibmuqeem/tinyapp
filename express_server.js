@@ -6,10 +6,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
 
-const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
+const urlDatabase = {};
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -21,8 +18,9 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
-  res.send("Ok");
+  let short = generateRandomString();
+  urlDatabase[short] = Object.values(req.body)[0];
+  res.redirect(`urls/${short}`);
 });
 
 app.get("/urls.json", (req, res) => {
@@ -35,6 +33,11 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -52,16 +55,22 @@ app.listen(PORT, () => {
 function generateRandomString() {
   let str = "";
   for (let i = 0; i < 6; i++) {
-    let digitCode = Math.floor(Math.random() * (57 - 48)) + 48;
-    let upCode = Math.floor(Math.random() * (90 - 65)) + 65;
-    let lowCode = Math.floor(Math.random() * (122 - 97)) + 97;
-    let digUpLow = Math.floor(Math.random() * 2);
+    let digitCode =
+      Math.floor(Math.random() * (Math.floor(57) - Math.ceil(48))) +
+      Math.ceil(48);
+    let upCode =
+      Math.floor(Math.random() * (Math.floor(90) - Math.ceil(65))) +
+      Math.ceil(65);
+    let lowCode =
+      Math.floor(Math.random() * (Math.floor(122) - Math.ceil(97))) +
+      Math.ceil(97);
+    let digUpLow = Math.floor(Math.random() * Math.floor(3));
     if (digUpLow === 0) {
       str += String.fromCharCode(digitCode);
     } else if (digUpLow === 1) {
-      str += String.fromCharCode(upCode);
-    } else if (digUpLow === 2) {
       str += String.fromCharCode(lowCode);
+    } else if (digUpLow === 2) {
+      str += String.fromCharCode(upCode);
     }
   }
   return str;
