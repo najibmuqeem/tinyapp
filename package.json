@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/najibmuqeem/tinyapp/issues"
   },
-  "homepage": "https://github.com/najibmuqeem/tinyapp#readme"
+  "homepage": "https://github.com/najibmuqeem/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
