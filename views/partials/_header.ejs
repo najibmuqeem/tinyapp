@@ -19,20 +19,25 @@
       </div>
     </div>
 
+    <% if(!user) { %>
     <div>
-      <% if(!username) { %>
-      <form method="POST" action="/login">
-        <input type="text" name="username" placeholder="Username" />
+      <form method="GET" action="/login">
         <button type="submit" class="btn btn-primary">Login</button>
       </form>
-      <% } else { %>
-      <form method="POST" action="/logout">
-        <div>
-          Logged in as <%= username %>
-          <button type="submit" class="btn btn-secondary">Logout</button>
-        </div>
-      </form>
-      <% } %>
     </div>
+    &nbsp;
+    <div>
+      <form method="GET" action="/register">
+        <button type="submit" class="btn btn-secondary">Register</button>
+      </form>
+    </div>
+    <% } else { %>
+    <form method="POST" action="/logout">
+      <div>
+        Logged in as <%= user.email %>
+        <button type="submit" class="btn btn-secondary">Logout</button>
+      </div>
+    </form>
+    <% } %>
   </nav>
 </header>
