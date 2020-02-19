@@ -6,7 +6,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
 
-const urlDatabase = {};
+const urlDatabase = { KlZy92: "www.google.com", nS7Dd3: "www.noah.com" };
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -23,6 +23,12 @@ app.post("/urls", (req, res) => {
   res.redirect(`urls/${short}`);
 });
 
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const short = req.params.shortURL;
+  delete urlDatabase[short];
+  res.redirect("/urls");
+});
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -36,8 +42,9 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
+  console.log(req.params.shortURL);
+  console.log(urlDatabase[req.params.shortURL]);
+  res.redirect(urlDatabase[req.params.shortURL]);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
