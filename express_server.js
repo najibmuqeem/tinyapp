@@ -122,7 +122,6 @@ app.post("/urls/:shortURL", (req, res) => {
 
 app.post("/login", (req, res) => {
   let id;
-  let err = false;
   for (let i in users) {
     if (
       users[i].email === req.body.email &&
@@ -130,12 +129,10 @@ app.post("/login", (req, res) => {
     ) {
       id = users[i].id;
       res.cookie("user_id", id);
-    } else {
-      err = true;
     }
   }
 
-  if (err) {
+  if (!id) {
     res.status(403).send("Invalid username or password.\n");
   } else {
     res.redirect("/urls");
