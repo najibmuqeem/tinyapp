@@ -3,23 +3,14 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookie = require("cookie-parser");
+const bcrypt = require("bcrypt");
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookie());
 
 app.set("view engine", "ejs");
 
-const users = {
-  cI0C98: {
-    id: "cI0C98",
-    email: "najib@noah.com",
-    password: "123"
-  },
-  p7J12w: {
-    id: "p7J12w",
-    email: "noah@noah.com",
-    password: "123"
-  }
-};
+const users = {};
 
 const urlDatabase = {};
 
@@ -86,12 +77,15 @@ app.post("/register", (req, res) => {
       break;
     }
   }
+
+  const hashedPassword = bcrypt.hashSync(req.body.password, 10);
+
   if (!exists) {
     users[id] = {};
 
     users[id]["id"] = id;
     users[id]["email"] = req.body.email;
-    users[id]["password"] = req.body.password;
+    users[id]["password"] = hashedPassword;
 
     res.cookie("user_id", id);
   } else {
@@ -122,25 +116,30 @@ app.post("/urls/:shortURL", (req, res) => {
   urlDatabase[req.params.shortURL] = {};
   urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
   urlDatabase[req.params.shortURL]["userID"] = req.cookies.user_id;
-  console.log(urlDatabase);
+
   res.redirect("/urls");
 });
 
 app.post("/login", (req, res) => {
   let id;
+  let err = false;
   for (let i in users) {
     if (
       users[i].email === req.body.email &&
-      users[i].password === req.body.password
+      bcrypt.compareSync(req.body.password, users[i].password)
     ) {
       id = users[i].id;
       res.cookie("user_id", id);
+    } else {
+      err = true;
     }
   }
-  if (!req.cookies.user_id) {
+
+  if (err) {
     res.status(403).send("Invalid username or password.\n");
+  } else {
+    res.redirect("/urls");
   }
-  res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
@@ -181,9 +180,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const address = urlDatabase[req.params.shortURL].longURL;
-  console.log(urlDatabase);
-  console.log(urlDatabase[req.params.shortURL]);
-  console.log(address);
+
   res.redirect(address);
 });
 
