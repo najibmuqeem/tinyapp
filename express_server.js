@@ -63,14 +63,13 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  if (req.body.email === "") {
-    res.status(400).send("Empty email input.\n");
+  if (!req.body.email || !req.body.password) {
+    res.status(400).send("Please provide both a username and password.\n");
   }
-  if (req.body.password === "") {
-    res.status(400).send("Empty password input.\n");
-  }
+
   let id = generateRandomString();
   let exists = false;
+
   for (let i in users) {
     if (users[i].email === req.body.email) {
       exists = true;
@@ -88,10 +87,10 @@ app.post("/register", (req, res) => {
     users[id]["password"] = hashedPassword;
 
     res.cookie("user_id", id);
+    res.redirect("/urls");
   } else {
     res.status(400).send("Email already exists.\n");
   }
-  res.redirect("/urls");
 });
 
 app.post("/urls", (req, res) => {
@@ -105,11 +104,10 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   if (urlDatabase[req.params.shortURL].userID === req.cookies.user_id) {
     delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls");
   } else {
-    res.status(403).send("Not authorized to delete URL.\n");
+    res.status(401).send("Not authorized to delete URL.\n");
   }
-
-  res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL", (req, res) => {
