@@ -72,8 +72,11 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  if (req.body.email === "" || req.body.password === "") {
-    res.sendStatus(400);
+  if (req.body.email === "") {
+    res.status(400).send("Empty email input.\n");
+  }
+  if (req.body.password === "") {
+    res.status(400).send("Empty password input.\n");
   }
   let id = generateRandomString();
   let exists = false;
@@ -92,7 +95,7 @@ app.post("/register", (req, res) => {
 
     res.cookie("user_id", id);
   } else {
-    res.sendStatus(400);
+    res.status(400).send("Email already exists.\n");
   }
   res.redirect("/urls");
 });
@@ -109,7 +112,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   if (urlDatabase[req.params.shortURL].userID === req.cookies.user_id) {
     delete urlDatabase[req.params.shortURL];
   } else {
-    res.sendStatus(403);
+    res.status(403).send("Not authorized to delete URL.\n");
   }
 
   res.redirect("/urls");
@@ -135,7 +138,7 @@ app.post("/login", (req, res) => {
     }
   }
   if (!req.cookies.user_id) {
-    res.sendStatus(403);
+    res.status(403).send("Invalid username or password.\n");
   }
   res.redirect("/urls");
 });
