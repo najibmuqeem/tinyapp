@@ -21,10 +21,7 @@ const users = {
   }
 };
 
-const urlDatabase = {
-  KlZy92: { longURL: "https://www.google.com", userID: "cI0C98" },
-  nS7Dd3: { longURL: "https://www.noah.com", userID: "cI0C98" }
-};
+const urlDatabase = {};
 
 const urlsForUser = id => {
   let urls = [];
@@ -75,6 +72,9 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
+  if (req.body.email === "" || req.body.password === "") {
+    res.sendStatus(400);
+  }
   let id = generateRandomString();
   let exists = false;
   for (let i in users) {
@@ -91,6 +91,8 @@ app.post("/register", (req, res) => {
     users[id]["password"] = req.body.password;
 
     res.cookie("user_id", id);
+  } else {
+    res.sendStatus(400);
   }
   res.redirect("/urls");
 });
@@ -104,13 +106,20 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const short = req.params.shortURL;
-  delete urlDatabase[short];
+  if (urlDatabase[req.params.shortURL].userID === req.cookies.user_id) {
+    delete urlDatabase[req.params.shortURL];
+  } else {
+    res.sendStatus(403);
+  }
+
   res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  urlDatabase[req.params.shortURL] = req.body.longURL;
+  urlDatabase[req.params.shortURL] = {};
+  urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
+  urlDatabase[req.params.shortURL]["userID"] = req.cookies.user_id;
+  console.log(urlDatabase);
   res.redirect("/urls");
 });
 
@@ -124,6 +133,9 @@ app.post("/login", (req, res) => {
       id = users[i].id;
       res.cookie("user_id", id);
     }
+  }
+  if (!req.cookies.user_id) {
+    res.sendStatus(403);
   }
   res.redirect("/urls");
 });
