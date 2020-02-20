@@ -111,11 +111,16 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  urlDatabase[req.params.shortURL] = {};
-  urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
-  urlDatabase[req.params.shortURL]["userID"] = req.cookies.user_id;
+  if (urlDatabase[req.params.shortURL].userID === req.cookies.user_id) {
+    urlDatabase[req.params.shortURL] = {
+      longURL: req.body.longURL,
+      userID: req.cookies.user_id
+    };
 
-  res.redirect("/urls");
+    res.redirect("/urls");
+  } else {
+    res.status(401).send("Not authorized to edit URL.\n");
+  }
 });
 
 app.post("/login", (req, res) => {
