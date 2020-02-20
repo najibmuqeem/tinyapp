@@ -20,8 +20,11 @@
           Short URL:
           <a target="_blank" href="/u/<%= shortURL %>"><%= shortURL %></a>
         </p>
+        <p>
+          <%= shortURL %> has been visited <%= visitedCount[shortURL] %> times
+        </p>
       </div>
-      <form method="POST" action="/urls/<%= shortURL %>">
+      <form method="POST" action="/urls/<%= shortURL %>?_method=PUT">
         <div>Edit</div>
         <div>
           <input type="text" name="longURL" placeholder="www.example.com" />

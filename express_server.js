@@ -4,10 +4,12 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookie = require("cookie-session");
 const bcrypt = require("bcrypt");
+const methodOverride = require("method-override");
 const { getUserByEmail } = require("./helpers");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookie({ name: "user_id", secret: "abc" }));
+app.use(methodOverride("_method"));
 app.set("view engine", "ejs");
 
 app.listen(PORT, () => {
@@ -17,6 +19,8 @@ app.listen(PORT, () => {
 const users = {}; //initialize empty global user database
 
 const urlDatabase = {}; //initialize empty global url database
+
+const visitedCount = {}; //initialize empty global counter to keep track of the number of times a specific shortURL has been visited
 
 const urlsForUser = id => {
   let urlArr = [];
@@ -85,7 +89,8 @@ app.get("/urls/:shortURL", (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
-    user: users[req.session.user_id]
+    user: users[req.session.user_id],
+    visitedCount
   };
 
   res.render("urls_show", templateVars);
@@ -93,7 +98,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const address = urlDatabase[req.params.shortURL].longURL;
-
+  visitedCount[req.params.shortURL] += 1;
   res.redirect(address);
 });
 
@@ -107,6 +112,7 @@ app.get("/login", (req, res) => {
 
 app.post("/urls", (req, res) => {
   let short = generateRandomString();
+  visitedCount[short] = 0;
   // set a new long URL and the current user and redirect to a page containing only that URL and its shortened version
   urlDatabase[short] = {
     longURL: Object.values(req.body)[0],
@@ -116,7 +122,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`urls/${short}`);
 });
 
-app.post("/urls/:shortURL", (req, res) => {
+app.put("/urls/:shortURL", (req, res) => {
   // if the logged in user created the current URL in question, allow them to edit
   if (urlDatabase[req.params.shortURL].userID === req.session.user_id) {
     urlDatabase[req.params.shortURL] = {
@@ -130,7 +136,7 @@ app.post("/urls/:shortURL", (req, res) => {
   }
 });
 
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL", (req, res) => {
   // if the logged in user created the current URL in question, allow them to delete
   if (urlDatabase[req.params.shortURL].userID === req.session.user_id) {
     delete urlDatabase[req.params.shortURL];
