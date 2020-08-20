@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/najibmuqeem/tinyapp#readme",
   "dependencies": {
-    "bcrypt": "2.0.0",
+    "bcrypt": "5.0.0",
     "body-parser": "^1.19.0",
     "cookie-session": "^1.4.0",
     "ejs": "^3.0.1",
